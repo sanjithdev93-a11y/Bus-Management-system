@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Drivers{% endblock %}
+{% block content %}
+<h1>Driver Details</h1>
+<section class="card">
+  <h3>{{ 'Edit Driver' if edit else 'Add New Driver' }}</h3>
+  <form method="post" action="{{ url_for('driver_save') }}" class="grid-form">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="driver_id" value="{{ edit.driver_id if edit else '' }}">
+    <label>Name<input name="name" required maxlength="60" value="{{ edit.name if edit else '' }}"></label>
+    <label>Phone<input name="phone" required maxlength="15" value="{{ edit.phone if edit else '' }}"></label>
+    <label>Driving Licence No.<input name="licence_number" required maxlength="30" value="{{ edit.licence_number if edit else '' }}"></label>
+    <label>Assigned Bus
+      <select name="bus_id"><option value="">-- None --</option>
+        {% for b in bus_opts %}<option value="{{ b.bus_id }}" {{ 'selected' if edit and edit.bus_id == b.bus_id }}>{{ b.bus_number }}</option>{% endfor %}
+      </select></label>
+    <div class="actions">
+      <button class="btn">{{ 'Update Driver' if edit else 'Add Driver' }}</button>
+      {% if edit %}<a class="btn secondary" href="{{ url_for('drivers') }}">Cancel</a>{% endif %}
+    </div>
+  </form>
+</section>
+<section class="card">
+  <table>
+    <tr><th>ID</th><th>Name</th><th>Phone</th><th>Licence No.</th><th>Assigned Bus</th><th>Actions</th></tr>
+    {% for d in drivers %}
+    <tr><td>{{ d.driver_id }}</td><td>{{ d.name }}</td><td>{{ d.phone }}</td><td>{{ d.licence_number }}</td><td>{{ d.bus_number or '—' }}</td>
+        <td class="row-actions">
+          <a class="btn small" href="{{ url_for('drivers', edit=d.driver_id) }}">Edit</a>
+          <form method="post" action="{{ url_for('delete_record', entity='drivers', key=d.driver_id) }}" data-confirm="Delete driver {{ d.name }}?">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn small danger">Delete</button></form>
+        </td></tr>
+    {% else %}<tr><td colspan="6">No drivers found.</td></tr>{% endfor %}
+  </table>
+</section>
+{% endblock %}

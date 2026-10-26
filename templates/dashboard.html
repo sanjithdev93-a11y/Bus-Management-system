@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<div class="cards">
+  <div class="stat"><span>{{ counts.buses }}</span>Total Buses</div>
+  <div class="stat"><span>{{ counts.drivers }}</span>Total Drivers</div>
+  <div class="stat"><span>{{ counts.students }}</span>Total Students</div>
+  <div class="stat"><span>{{ counts.routes }}</span>Total Routes</div>
+</div>
+<section class="card">
+  <h3>Registered Buses and Assigned Routes</h3>
+  <table>
+    <tr><th>Bus No.</th><th>Route</th><th>Driver</th><th>Status</th></tr>
+    {% for b in buses %}
+    <tr><td>{{ b.bus_number }}</td><td>{{ b.route_name or '—' }}</td><td>{{ b.driver_name or '—' }}</td>
+        <td><span class="badge {{ b.status|lower }}">{{ b.status }}</span></td></tr>
+    {% else %}<tr><td colspan="4">No buses registered.</td></tr>{% endfor %}
+  </table>
+</section>
+{% endblock %}

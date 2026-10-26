@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Routes{% endblock %}
+{% block content %}
+<h1>Route Management</h1>
+<section class="card">
+  <h3>{{ 'Edit Route' if edit else 'Add New Route' }}</h3>
+  <form method="post" action="{{ url_for('route_save') }}" class="grid-form">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="route_id" value="{{ edit.route_id if edit else '' }}">
+    <label>Route Name<input name="route_name" required maxlength="60" value="{{ edit.route_name if edit else '' }}"></label>
+    <label>Starting Point<input name="start_point" required maxlength="60" value="{{ edit.start_point if edit else '' }}"></label>
+    <label>Destination<input name="destination" required maxlength="60" value="{{ edit.destination if edit else '' }}"></label>
+    <label class="wide">Stops (comma separated)<textarea name="stops" rows="2" maxlength="500">{{ edit.stops if edit else '' }}</textarea></label>
+    <div class="actions">
+      <button class="btn">{{ 'Update Route' if edit else 'Add Route' }}</button>
+      {% if edit %}<a class="btn secondary" href="{{ url_for('routes') }}">Cancel</a>{% endif %}
+    </div>
+  </form>
+</section>
+<section class="card">
+  <table>
+    <tr><th>ID</th><th>Name</th><th>From</th><th>To</th><th>Stops</th><th>Buses</th><th>Actions</th></tr>
+    {% for r in route_rows %}
+    <tr><td>{{ r.route_id }}</td><td>{{ r.route_name }}</td><td>{{ r.start_point }}</td><td>{{ r.destination }}</td>
+        <td>{{ r.stops or '—' }}</td><td>{{ r.bus_count }}</td>
+        <td class="row-actions">
+          <a class="btn small" href="{{ url_for('routes', edit=r.route_id) }}">Edit</a>
+          <form method="post" action="{{ url_for('delete_record', entity='routes', key=r.route_id) }}" data-confirm="Delete route {{ r.route_name }}?">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn small danger">Delete</button></form>
+        </td></tr>
+    {% else %}<tr><td colspan="7">No routes found.</td></tr>{% endfor %}
+  </table>
+</section>
+{% endblock %}

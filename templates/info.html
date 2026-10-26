@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Bus Information{% endblock %}
+{% block content %}
+<h1>Bus &amp; Route Information <small class="muted">(read-only)</small></h1>
+<section class="card">
+  <h3>Buses</h3>
+  <table>
+    <tr><th>Bus No.</th><th>Route</th><th>Driver</th><th>Status</th></tr>
+    {% for b in buses %}
+    <tr><td>{{ b.bus_number }}</td><td>{{ b.route_name or '—' }}</td><td>{{ b.driver_name or '—' }}</td>
+        <td><span class="badge {{ b.status|lower }}">{{ b.status }}</span></td></tr>
+    {% else %}<tr><td colspan="4">No data.</td></tr>{% endfor %}
+  </table>
+</section>
+<section class="card">
+  <h3>Routes</h3>
+  <table>
+    <tr><th>Name</th><th>From</th><th>To</th><th>Stops</th></tr>
+    {% for r in route_list %}<tr><td>{{ r.route_name }}</td><td>{{ r.start_point }}</td><td>{{ r.destination }}</td><td>{{ r.stops or '—' }}</td></tr>
+    {% else %}<tr><td colspan="4">No data.</td></tr>{% endfor %}
+  </table>
+</section>
+<p>{% if session.get('admin') %}<a href="{{ url_for('dashboard') }}">← Back to dashboard</a>{% else %}<a href="{{ url_for('login') }}">Admin login</a>{% endif %}</p>
+{% endblock %}

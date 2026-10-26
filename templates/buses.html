@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Buses{% endblock %}
+{% block content %}
+<h1>Bus Management</h1>
+<section class="card">
+  <h3>{{ 'Edit Bus' if edit else 'Add New Bus' }}</h3>
+  <form method="post" action="{{ url_for('bus_save') }}" class="grid-form">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="bus_id" value="{{ edit.bus_id if edit else '' }}">
+    <label>Bus Number<input name="bus_number" required maxlength="20" value="{{ edit.bus_number if edit else '' }}"></label>
+    <label>Registration Number<input name="registration_number" required maxlength="30" value="{{ edit.registration_number if edit else '' }}"></label>
+    <label>Capacity<input type="number" name="capacity" min="1" max="100" required value="{{ edit.capacity if edit else '' }}"></label>
+    <label>Status
+      <select name="status">
+        {% for s in ['Active','Inactive'] %}<option {{ 'selected' if edit and edit.status == s }}>{{ s }}</option>{% endfor %}
+      </select></label>
+    <label>Route
+      <select name="route_id"><option value="">-- None --</option>
+        {% for r in route_opts %}<option value="{{ r.route_id }}" {{ 'selected' if edit and edit.route_id == r.route_id }}>{{ r.route_name }}</option>{% endfor %}
+      </select></label>
+    <label>Driver
+      <select name="driver_id"><option value="">-- None --</option>
+        {% for d in driver_opts %}<option value="{{ d.driver_id }}" {{ 'selected' if edit and edit.driver_id == d.driver_id }}>{{ d.name }}</option>{% endfor %}
+      </select></label>
+    <div class="actions">
+      <button class="btn">{{ 'Update Bus' if edit else 'Add Bus' }}</button>
+      {% if edit %}<a class="btn secondary" href="{{ url_for('buses') }}">Cancel</a>{% endif %}
+    </div>
+  </form>
+</section>
+
+<section class="card">
+  <form method="get" class="search">
+    <input name="q" placeholder="Search by bus number" value="{{ q }}">
+    <button class="btn">Search</button>
+    {% if q %}<a class="btn secondary" href="{{ url_for('buses') }}">Clear</a>{% endif %}
+  </form>
+  <table>
+    <tr><th>Bus No.</th><th>Registration</th><th>Capacity</th><th>Route</th><th>Driver</th><th>Status</th><th>Actions</th></tr>
+    {% for b in buses %}
+    <tr><td>{{ b.bus_number }}</td><td>{{ b.registration_number }}</td><td>{{ b.capacity }}</td>
+        <td>{{ b.route_name or '—' }}</td><td>{{ b.driver_name or '—' }}</td>
+        <td><span class="badge {{ b.status|lower }}">{{ b.status }}</span></td>
+        <td class="row-actions">
+          <a class="btn small" href="{{ url_for('buses', edit=b.bus_id) }}">Edit</a>
+          <form method="post" action="{{ url_for('delete_record', entity='buses', key=b.bus_id) }}" data-confirm="Delete bus {{ b.bus_number }}?">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn small danger">Delete</button></form>
+        </td></tr>
+    {% else %}<tr><td colspan="7">No buses found.</td></tr>{% endfor %}
+  </table>
+</section>
+{% endblock %}

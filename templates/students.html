@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Students{% endblock %}
+{% block content %}
+<h1>Student Details</h1>
+<section class="card">
+  <h3>{{ 'Edit Student' if edit else 'Add New Student' }}</h3>
+  <form method="post" action="{{ url_for('student_save') }}" class="grid-form">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="orig_id" value="{{ edit.student_id if edit else '' }}">
+    <label>Student ID<input name="student_id" required maxlength="20" value="{{ edit.student_id if edit else '' }}" {{ 'readonly' if edit }}></label>
+    <label>Name<input name="name" required maxlength="60" value="{{ edit.name if edit else '' }}"></label>
+    <label>Department<input name="department" required maxlength="60" value="{{ edit.department if edit else '' }}"></label>
+    <label>Year of Study
+      <select name="year">{% for y in [1,2,3,4] %}<option value="{{ y }}" {{ 'selected' if edit and edit.year == y }}>{{ y }}</option>{% endfor %}</select></label>
+    <label>Phone<input name="phone" required maxlength="15" value="{{ edit.phone if edit else '' }}"></label>
+    <label>Assigned Bus
+      <select name="bus_id"><option value="">-- None --</option>
+        {% for b in bus_opts %}<option value="{{ b.bus_id }}" {{ 'selected' if edit and edit.bus_id == b.bus_id }}>{{ b.bus_number }}</option>{% endfor %}
+      </select></label>
+    <div class="actions">
+      <button class="btn">{{ 'Update Student' if edit else 'Add Student' }}</button>
+      {% if edit %}<a class="btn secondary" href="{{ url_for('students') }}">Cancel</a>{% endif %}
+    </div>
+  </form>
+</section>
+<section class="card">
+  <table>
+    <tr><th>ID</th><th>Name</th><th>Department</th><th>Year</th><th>Phone</th><th>Bus</th><th>Route</th><th>Actions</th></tr>
+    {% for s in students %}
+    <tr><td>{{ s.student_id }}</td><td>{{ s.name }}</td><td>{{ s.department }}</td><td>{{ s.year }}</td><td>{{ s.phone }}</td>
+        <td>{{ s.bus_number or '—' }}</td><td>{{ s.route_name or '—' }}</td>
+        <td class="row-actions">
+          <a class="btn small" href="{{ url_for('students', edit=s.student_id) }}">Edit</a>
+          <form method="post" action="{{ url_for('delete_record', entity='students', key=s.student_id) }}" data-confirm="Delete student {{ s.name }}?">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn small danger">Delete</button></form>
+        </td></tr>
+    {% else %}<tr><td colspan="8">No students found.</td></tr>{% endfor %}
+  </table>
+</section>
+{% endblock %}
